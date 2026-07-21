@@ -490,4 +490,9 @@ if user_prompt := st.chat_input("Ask me about Divya's experience..."):
             response_placeholder.markdown(ai_response)
             st.session_state.messages.append({"role": "assistant", "content": ai_response})
         except Exception as e:
+            # 1. This line prints the REAL hidden error directly into your Streamlit Cloud logs panel!
+            print(f"CRITICAL GEMINI ERROR LOG: {str(e)}") 
+            
+            # 2. This keeps your user UI response intact
             response_placeholder.markdown("My apologies, I ran into an error connecting to my database engine. Please try again.")
+            
