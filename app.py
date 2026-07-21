@@ -500,5 +500,5 @@ if user_prompt := st.chat_input("Ask me about Divya's experience..."):
             print(f"CRITICAL GEMINI ERROR LOG: {str(e)}") 
             
             # 2. This keeps your user UI response intact
-            response_placeholder.markdown("My apologies, I ran into an error connecting to my database engine. Please try again.")
+            # response_placeholder.markdown("My apologies, I ran into an error connecting to my database engine. Please try again.")
             
