@@ -445,16 +445,13 @@ st.set_page_config(page_title="Divya Prakash - AI Recruiter Agent", page_icon="ð
 st.title("ðŸ¤– Chat with Divya's AI Recruiter Agent")
 st.subheader("Ask anything about my background, career history, or skills.")
 
-# Initialize the Gemini LLM Model Engine
-if "gemini_model" not in st.session_state:
+# Initialize the Current GenAI Client Engine
+if "genai_client" not in st.session_state:
     try:
-        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        st.session_state.gemini_model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction=AGENT_SYSTEM_INSTRUCTION
-        )
+        # Securely instantiates the brand new SDK client wrapper
+        st.session_state.genai_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
     except Exception as e:
-        st.error("Missing Gemini API credentials. Configuration required.")
+        st.error(f"Initialization Failed: {e}")
 
 # Manage conversation memory inside active user session
 if "messages" not in st.session_state:
@@ -483,10 +480,14 @@ if user_prompt := st.chat_input("Ask me about Divya's experience..."):
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
         try:
-            # FIX: Initialize a clean chat session if it doesn't exist
-            if "gemini_chat" not in st.session_state:
-                st.session_state.gemini_chat = st.session_state.gemini_model.start_chat(history=[])
-            
+            # Safely create a structured persistent chat session using new types configuration
+            if "active_chat" not in st.session_state:
+                st.session_state.active_chat = st.session_state.genai_client.chats.create(
+                    model="gemini-1.5-flash",
+                    config=types.GenerateContentConfig(
+                        system_instruction=AGENT_SYSTEM_INSTRUCTION
+                    )
+                )            
             # Send message using the persistent internal chat history session
             response = st.session_state.gemini_chat.send_message(user_prompt)
             ai_response = response.text
