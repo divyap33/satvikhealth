@@ -482,7 +482,7 @@ if user_prompt := st.chat_input("Ask me about Divya's experience..."):
             # 2. Verify Chat Instance Creation
             if "gemini_chat" not in st.session_state:
                 st.session_state.gemini_chat = st.session_state.genai_client.chats.create(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.6-flash",
                     config=types.GenerateContentConfig(
                         system_instruction=AGENT_SYSTEM_INSTRUCTION
                     )
