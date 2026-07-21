@@ -481,8 +481,12 @@ if user_prompt := st.chat_input("Ask me about Divya's experience..."):
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
         try:
+            # SAFETY CHECK: Dynamically build the client and chat session if missing
+            if "genai_client" not in st.session_state:
+                st.session_state.genai_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+
             # Safely create a structured persistent chat session using new types configuration
-            if "active_chat" not in st.session_state:
+            if "gemini_chat" not in st.session_state:
                 st.session_state.active_chat = st.session_state.genai_client.chats.create(
                     model="gemini-1.5-flash",
                     config=types.GenerateContentConfig(
