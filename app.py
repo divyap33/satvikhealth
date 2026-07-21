@@ -1,5 +1,6 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import smtplib
 from email.mime.text import MIMEText
 
@@ -419,7 +420,7 @@ def send_email_notification(recruiter_message):
     try:
         # Pull production environment secrets securely
         smtp_user = st.secrets["satvikhealth1@gmail.com"]          # Your Gmail address
-        smtp_password = st.secrets["Testaccount@2026"]  # Your Google App Password
+        smtp_password = st.secrets["qgpn ghsf ttgi dazl"]  # Your Google App Password
         alert_receiver = st.secrets["divyaprakash03@gmail.com"] # Where you want to get notified
         
         # Configure standard secure email payload
