@@ -446,15 +446,7 @@ st.set_page_config(page_title="Divya Prakash - AI Recruiter Agent", page_icon="�
 st.title("🤖 Chat with Divya's AI Recruiter Agent")
 st.subheader("Ask anything about my background, career history, or skills.")
 
-# Initialize the Current GenAI Client Engine
-if "genai_client" not in st.session_state:
-    try:
-        # Securely instantiates the brand new SDK client wrapper
-        st.session_state.genai_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-    except Exception as e:
-        st.error(f"Initialization Failed: {e}")
-
-# Manage conversation memory inside active user session
+# Initialize conversation UI memory structure
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "email_sent" not in st.session_state:
@@ -477,34 +469,38 @@ if user_prompt := st.chat_input("Ask me about Divya's experience..."):
         send_email_notification(user_prompt)
         st.session_state.email_sent = True
 
-    # Call LLM engine to generate contextual profile answer
+    # Call the new model engine using persistent chats
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
+        
+        # --- SAFE INITIALIZATION LAYER ---
         try:
-            # SAFETY CHECK: Dynamically build the client and chat session if missing
+            # 1. Verify Client Instantiation
             if "genai_client" not in st.session_state:
                 st.session_state.genai_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-
-            # Safely create a structured persistent chat session using new types configuration
+            
+            # 2. Verify Chat Instance Creation
             if "gemini_chat" not in st.session_state:
-                st.session_state.active_chat = st.session_state.genai_client.chats.create(
+                st.session_state.gemini_chat = st.session_state.genai_client.chats.create(
                     model="gemini-1.5-flash",
                     config=types.GenerateContentConfig(
                         system_instruction=AGENT_SYSTEM_INSTRUCTION
                     )
-                )            
-            # Send message using the persistent internal chat history session
+                )
+        except Exception as init_error:
+            # Captures and reveals the ACTUAL reason why Google AI failed to connect
+            st.error(f"⚠️ Google Gemini Initialization Failed: {str(init_error)}")
+            response_placeholder.markdown("Could not start chat engine due to a configuration error.")
+            st.stop() # Halts processing cleanly so we don't hit attribute errors later
+
+        # --- CHAT EXECUTION LAYER ---
+        try:
+            # Send message downstream to Google's live server endpoint
             response = st.session_state.gemini_chat.send_message(user_prompt)
             ai_response = response.text
             
             response_placeholder.markdown(ai_response)
             st.session_state.messages.append({"role": "assistant", "content": ai_response})
-
-        except Exception as e:
-            # 1. This prints the EXACT underlying error directly to your Streamlit Manage App console
-            print(f"DEBUG ERROR: {str(e)}")
-            
-            # 2. This helps us see the error right on the screen if you don't have the log panel open
-            st.error(f"Technical details: {str(e)}")
-            response_placeholder.markdown("My apologies, I ran into an error connecting to my database engine. Please try again.")
-            
+        except Exception as chat_error:
+            st.error(f"⚠️ Message Processing Failed: {str(chat_error)}")
+            response_placeholder.markdown("My apologies, I ran into an error connecting to my database engine. Please try again.")            
