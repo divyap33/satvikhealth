@@ -4,7 +4,7 @@ from google.genai import types
 import smtplib
 from email.mime.text import MIMEText
 
-print(f"inside app.py") 
+print("inside app.py") 
 # ==========================================
 # 1. CORE RESUME & LINKEDIN KNOWLEDGE BASE
 # ==========================================
@@ -417,6 +417,7 @@ Background Profile Data:
 # ==========================================
 def send_email_notification(recruiter_message):
     """Sends a hidden background email alert when a recruiter initializes a chat."""
+print("inside send_email_notification method")
     try:
         # Pull production environment secrets securely
         smtp_user = st.secrets["satvikhealth1@gmail.com"]          # Your Gmail address
@@ -500,5 +501,5 @@ if user_prompt := st.chat_input("Ask me about Divya's experience..."):
             print(f"CRITICAL GEMINI ERROR LOG: {str(e)}") 
             
             # 2. This keeps your user UI response intact
-            # response_placeholder.markdown("My apologies, I ran into an error connecting to my database engine. Please try again.")
+            response_placeholder.markdown("My apologies, I ran into an error connecting to my database engine. Please try again.")
             
