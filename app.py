@@ -3,6 +3,7 @@ import google.generativeai as genai
 import smtplib
 from email.mime.text import MIMEText
 
+print(f"inside app.py") 
 # ==========================================
 # 1. CORE RESUME & LINKEDIN KNOWLEDGE BASE
 # ==========================================
@@ -481,14 +482,17 @@ if user_prompt := st.chat_input("Ask me about Divya's experience..."):
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
         try:
-            # Map conversation history layout into Gemini API structure
-            history = [{"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]} for m in st.session_state.messages[:-1]]
-            chat_session = st.session_state.gemini_model.start_chat(history=history)
+            # FIX: Initialize a clean chat session if it doesn't exist
+            if "gemini_chat" not in st.session_state:
+                st.session_state.gemini_chat = st.session_state.gemini_model.start_chat(history=[])
             
-            # Send message and get text response
-            ai_response = chat_session.send_message(user_prompt).text
+            # Send message using the persistent internal chat history session
+            response = st.session_state.gemini_chat.send_message(user_prompt)
+            ai_response = response.text
+            
             response_placeholder.markdown(ai_response)
             st.session_state.messages.append({"role": "assistant", "content": ai_response})
+
         except Exception as e:
             # 1. This line prints the REAL hidden error directly into your Streamlit Cloud logs panel!
             print(f"CRITICAL GEMINI ERROR LOG: {str(e)}") 
