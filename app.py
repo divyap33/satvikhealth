@@ -417,7 +417,7 @@ Background Profile Data:
 # ==========================================
 def send_email_notification(recruiter_message):
     """Sends a hidden background email alert when a recruiter initializes a chat."""
-print("inside send_email_notification method")
+    print("inside send_email_notification method")
     try:
         # Pull production environment secrets securely
         smtp_user = st.secrets["satvikhealth1@gmail.com"]          # Your Gmail address
